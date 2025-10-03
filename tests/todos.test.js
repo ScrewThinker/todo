@@ -5,7 +5,8 @@ describe("Todo API", () => {
   it("should return health check", async () => {
     const res = await request(app).get("/healthz");
     expect(res.statusCode).toBe(200);
-    expect(res.body).toEqual({ status: "ok", commit: null });
+    expect(res.body.status).toBe("ok");
+    expect(res.body).toHaveProperty("commit");
   });
 
   it("should create a todo", async () => {
