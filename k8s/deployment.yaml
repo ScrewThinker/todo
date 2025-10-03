@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todos-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: todos
+  template:
+    metadata:
+      labels:
+        app: todos
+    spec:
+      containers:
+        - name: todos
+          image: todos-service:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: GIT_SHA
+              value: "demo"
