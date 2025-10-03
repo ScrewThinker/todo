@@ -1,25 +1,27 @@
 const express = require("express");
+const bodyParser = require("body-parser");
+
 const app = express();
-const todosRouter = require("./routes/todos");
-const register = require("./metrics");
+app.use(bodyParser.json());
 
-app.use(express.json());
-
+// routes
 app.get("/healthz", (req, res) => {
-  const commit = process.env.GIT_SHA || null;
-  res.json({ status: "ok", commit });
+  res.json({ status: "ok", commit: process.env.GIT_SHA || null });
 });
 
-app.use("/api/v1/todos", todosRouter);
-
-app.get("/metrics", async (req, res) => {
-  res.set("Content-Type", register.contentType);
-  res.end(await register.metrics());
+let todos = [];
+app.post("/api/v1/todos", (req, res) => {
+  const { title } = req.body;
+  if (!title) {
+    return res.status(400).json({ error: "Title is required" });
+  }
+  const todo = { id: todos.length + 1, title, done: false };
+  todos.push(todo);
+  res.status(201).json(todo);
 });
 
-const PORT = 3000;
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+app.get("/api/v1/todos", (req, res) => {
+  res.json(todos);
 });
 
 module.exports = app;
