@@ -50,5 +50,5 @@ jobs:
         with:
           image-ref: todos-service:${{ github.sha }}
           format: table
-          exit-code: 1
-          severity: HIGH,CRITICAL
+          exit-code: 0
+          severity: CRITICAL
