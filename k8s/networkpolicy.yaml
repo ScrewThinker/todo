@@ -1,0 +1,13 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: todo-deny-all
+spec:
+  podSelector:
+    matchLabels:
+      app: todo-app
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector: {}  # allow ingress only from selected pods or ingress controller

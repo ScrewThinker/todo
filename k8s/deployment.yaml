@@ -1,22 +1,53 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: todos-deployment
+  name: todo-app
+  labels:
+    app: todo-app
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: todos
+      app: todo-app
   template:
     metadata:
       labels:
-        app: todos
+        app: todo-app
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 2000
       containers:
-        - name: todos
-          image: todos-service:latest
-          ports:
-            - containerPort: 3000
-          env:
-            - name: GIT_SHA
-              value: "demo"
+      - name: todo-app
+        image: todo-app:latest
+        imagePullPolicy: IfNotPresent  # For Minikube; in EKS use pinned digest
+        ports:
+        - containerPort: 3000
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 3000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        securityContext:
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - NET_RAW
+        env:
+          - name: GIT_SHA
+            value: "demo"
